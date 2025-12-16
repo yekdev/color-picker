@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
 
         :root {
-            /* Varsayılan (Koyu Arka Plan) Teması */
             --text-main: rgba(255, 255, 255, 0.95);
             --text-muted: rgba(255, 255, 255, 0.8);
             --card-bg: rgba(255, 255, 255, 0.1);
@@ -22,7 +21,6 @@
             --social-hover: #fff;
         }
 
-        /* Açık Renk Arka Plan Teması */
         body.light-theme {
             --text-main: #2d3436;
             --text-muted: #636e72;
