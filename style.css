@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
 
         :root {
+            /* Varsayılan (Koyu Arka Plan) Teması */
             --text-main: rgba(255, 255, 255, 0.95);
             --text-muted: rgba(255, 255, 255, 0.8);
             --card-bg: rgba(255, 255, 255, 0.1);
@@ -21,6 +22,7 @@
             --social-hover: #fff;
         }
 
+        /* Açık Renk Arka Plan Teması */
         body.light-theme {
             --text-main: #2d3436;
             --text-muted: #636e72;
@@ -175,6 +177,7 @@
 
         .input-wrapper {
             display: flex;
+            align-items: center; /* Buton ve input hizalaması için */
             background: var(--input-bg);
             border-radius: 12px;
             padding: 4px;
@@ -190,6 +193,7 @@
 
         .input-wrapper input {
             flex: 1;
+            min-width: 0; /* Mobilde taşmayı önlemek için kritik */
             border: none;
             background: transparent;
             padding: 12px;
@@ -347,6 +351,7 @@
                 max-width: 100%;
             }
 
+            /* Mobilde inputların okunabilirliği için */
             .input-wrapper {
                  background: rgba(0, 0, 0, 0.15); 
             }
@@ -362,4 +367,3 @@
                 justify-content: center;
             }
         }
-}
