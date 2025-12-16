@@ -1,42 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Picker</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Color Picker Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+        :root {
+            /* Varsayılan (Koyu Arka Plan) Teması */
+            --text-main: rgba(255, 255, 255, 0.95);
+            --text-muted: rgba(255, 255, 255, 0.8);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.2);
+            --card-shadow: rgba(0, 0, 0, 0.2);
+            --input-bg: rgba(0, 0, 0, 0.2);
+            --input-text: #fff;
+            --input-border: rgba(255, 255, 255, 0.1);
+            --copy-btn-bg: rgba(255, 255, 255, 0.1);
+            --copy-btn-color: rgba(255, 255, 255, 0.8);
+            --copy-btn-hover-bg: rgba(255, 255, 255, 0.3);
+            --color-btn-bg: rgba(255, 255, 255, 0.2);
+            --color-btn-text: #fff;
+            --share-btn-bg: rgba(0, 0, 0, 0.2);
+            --share-btn-text: #fff;
+            --blob-color: rgba(255, 255, 255, 0.15);
+            --social-color: rgba(255, 255, 255, 0.7);
+            --social-hover: #fff;
+        }
+
+        /* Açık Renk Arka Plan Teması */
+        body.light-theme {
+            --text-main: #2d3436;
+            --text-muted: #636e72;
+            --card-bg: rgba(255, 255, 255, 0.45);
+            --card-border: rgba(255, 255, 255, 0.8);
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.6);
+            --input-text: #2d3436;
+            --input-border: rgba(0, 0, 0, 0.05);
+            --copy-btn-bg: rgba(0, 0, 0, 0.05);
+            --copy-btn-color: #2d3436;
+            --copy-btn-hover-bg: rgba(0, 0, 0, 0.1);
+            --color-btn-bg: #2d3436;
+            --color-btn-text: #fff;
+            --share-btn-bg: rgba(255, 255, 255, 0.8);
+            --share-btn-text: #2d3436;
+            --blob-color: rgba(0, 0, 0, 0.08);
+            --social-color: #636e72;
+            --social-hover: #2d3436;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ff9a9e;
+            transition: background 0.5s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .blob {
+            position: absolute;
+            background: var(--blob-color);
+            border-radius: 50%;
+            pointer-events: none;
+            transition: background 0.5s ease;
+        }
+
+        .blob-1 {
+            top: 10%;
+            left: 10%;
+            width: 300px;
+            height: 300px;
+            animation: moveBlob1 20s infinite alternate;
+        }
+
+        .blob-2 {
+            bottom: 10%;
+            right: 10%;
+            width: 250px;
+            height: 250px;
+            animation: moveBlob2 15s infinite alternate;
+        }
+
+        @keyframes moveBlob1 {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(50px, 50px) scale(1.1); }
+        }
+
+        @keyframes moveBlob2 {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(-50px, -30px) scale(0.9); }
+        }
+
+        .container {
+            padding: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--card-bg);
+            box-shadow: 0 8px 32px 0 var(--card-shadow);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            border-left: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .title {
+            color: var(--text-main);
+            margin-bottom: 2rem;
+            font-weight: 700;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: color 0.3s ease;
+        }
+
+        .color-preview-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+        }
+
+        .color-preview {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #000;
+            border: 4px solid var(--card-border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .color-preview:hover {
+            transform: scale(1.05);
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+            margin-left: 4px;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        .input-wrapper {
+            display: flex;
+            background: var(--input-bg);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid var(--input-border);
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            background: var(--input-bg);
+            border-color: var(--text-muted);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px;
+            font-size: 1rem;
+            color: var(--input-text);
+            outline: none;
+            font-family: 'Poppins', monospace;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .copy-btn {
+            background: var(--copy-btn-bg);
+            border: 1px solid transparent;
+            padding: 0 15px;
+            margin: 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--copy-btn-color);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .copy-btn:hover {
+            background: var(--copy-btn-hover-bg);
+            transform: scale(1.05);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        #changeColor {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-decoration: none;
+            user-select: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .color-btn {
+            background: var(--color-btn-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--color-btn-text);
+        }
+
+        .share-btn {
+            background: var(--share-btn-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--share-btn-text);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            filter: brightness(1.1);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            padding-top: 1rem;
+            border-top: 1px solid var(--input-border);
+        }
+
+        .social-links a {
+            color: var(--social-color);
+            font-size: 1.6rem;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            transform: scale(1.2) rotate(5deg);
+            color: var(--social-hover);
+        }
+
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px 32px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: toastIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), toastOut 0.5s 2.5s forwards;
+        }
+
+        @keyframes toastIn {
+            from { bottom: 0; opacity: 0; transform: translateX(-50%) scale(0.8); }
+            to { bottom: 30px; opacity: 1; transform: translateX(-50%) scale(1); }
+        }
+
+        @keyframes toastOut {
+            from { bottom: 30px; opacity: 1; }
+            to { bottom: 0; opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 1.5rem;
+                border-radius: 0;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
-
 <body>
-    <div class="container">
-        <div class="content">
-            <h1 id="header-text">Color Picker</h2>
-                <div class="fields">
-                    <label for="rgb">RGB:</label>
-                    <input type="text" name="rgb" id="rgb" value="rgb(0,0,0,1);"><br><br>
-                    <label for="HEX">HEX:</label>
-                    <input type="text" name="hex" id="hex" value="#000000">
-                </div>
-                <input type="color" name="color" id="changeColor">
-                <div class="contact">
-                    <a href="https://instagram.com/endercoder/" target="_blank" id="instagram">
-                        <i class="fa-brands fa-instagram"></i>
-                    </a>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
 
-                    <a href="https://github.com/yekdev/" target="_blank" id="github">
-                        <i class="fa-brands fa-github"></i>
-                    </a>
+    <div class="container">
+        <div class="card">
+            <h1 class="title">Color Picker Pro</h1>
+            
+            <div class="color-preview-container">
+                <div class="color-preview" id="colorPreview" title="Click to open picker"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="hex">HEX Code</label>
+                <div class="input-wrapper">
+                    <input type="text" id="hex" readonly>
+                    <button class="copy-btn" data-target="hex" title="Copy HEX">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
                 </div>
+            </div>
+
+            <div class="input-group">
+                <label for="rgb">RGB Code</label>
+                <div class="input-wrapper">
+                    <input type="text" id="rgb" readonly>
+                    <button class="copy-btn" data-target="rgb" title="Copy RGB">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <label for="changeColor" class="btn color-btn">
+                    <i class="fa-solid fa-palette"></i> Pick Color
+                </label>
+                <input type="color" id="changeColor">
+                
+                <button class="btn share-btn" id="shareBtn" title="Share Color Link">
+                    <i class="fa-solid fa-share-nodes"></i> Share Link
+                </button>
+            </div>
+
+            <div class="social-links">
+                <a href="https://instagram.com/endercoder/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://github.com/yekdev/" target="_blank"><i class="fa-brands fa-github"></i></a>
+            </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
-        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="app.js"></script>
-</body>
+    
+    <div id="toast"><i class="fa-solid fa-check-circle"></i> <span>Copied!</span></div>
 
+    <script src="./app.js"></script>
+</body>
 </html>
