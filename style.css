@@ -208,7 +208,7 @@
         .copy-btn {
             background: var(--copy-btn-bg);
             border: 1px solid transparent;
-            padding: 0 15px;
+            padding: 13px 15px;
             margin: 4px;
             border-radius: 8px;
             cursor: pointer;
