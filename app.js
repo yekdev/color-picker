@@ -1,95 +1,109 @@
-$(document).ready(function () {
-  let input = document.querySelector("#changeColor");
+document.addEventListener("DOMContentLoaded", () => {
+            const colorInput = document.getElementById('changeColor');
+            const hexInput = document.getElementById('hex');
+            const rgbInput = document.getElementById('rgb');
+            const colorPreview = document.getElementById('colorPreview');
+            const copyBtns = document.querySelectorAll('.copy-btn');
+            const shareBtn = document.getElementById('shareBtn');
+            const toast = document.getElementById('toast');
+            const toastText = toast.querySelector('span');
 
-  input.addEventListener("input", update, false);
-  input.select();
+            const hexToRgb = (hex) => {
+                const r = parseInt(hex.substring(1, 3), 16);
+                const g = parseInt(hex.substring(3, 5), 16);
+                const b = parseInt(hex.substring(5, 7), 16);
+                return `rgb(${r}, ${g}, ${b})`;
+            }
 
-  function colorValues(color) {
-    if (!color) return;
-    if (color.toLowerCase() === "transparent") return [0, 0, 0, 0];
-    if (color[0] === "#") {
-      if (color.length < 7) {
-        color =
-          "#" +
-          color[1] +
-          color[1] +
-          color[2] +
-          color[2] +
-          color[3] +
-          color[3] +
-          (color.length > 4 ? color[4] + color[4] : "");
-      }
-      return [
-        parseInt(color.substr(1, 2), 16),
-        parseInt(color.substr(3, 2), 16),
-        parseInt(color.substr(5, 2), 16),
-        color.length > 7 ? parseInt(color.substr(7, 2), 16) / 255 : 1,
-      ];
-    }
-    if (color.indexOf("rgb") === -1) {
-      var temp_elem = document.body.appendChild(
-        document.createElement("fictum")
-      );
-      var flag = "rgb(1, 2, 3)";
-      temp_elem.style.color = flag;
-      if (temp_elem.style.color !== flag) return;
-      temp_elem.style.color = color;
-      if (temp_elem.style.color === flag || temp_elem.style.color === "")
-        return;
-      color = getComputedStyle(temp_elem).color;
-      document.body.removeChild(temp_elem);
-    }
-    if (color.indexOf("rgb") === 0) {
-      if (color.indexOf("rgba") === -1) color += ",1";
-      return color.match(/[\.\d]+/g).map(function (a) {
-        return +a;
-      });
-    }
-  }
+            const adjustBrightness = (col, amt) => {
+                let usePound = false;
+                if (col[0] == "#") {
+                    col = col.slice(1);
+                    usePound = true;
+                }
+                let num = parseInt(col, 16);
+                let r = (num >> 16) + amt;
+                if (r > 255) r = 255; else if (r < 0) r = 0;
+                let b = ((num >> 8) & 0x00FF) + amt;
+                if (b > 255) b = 255; else if (b < 0) b = 0;
+                let g = (num & 0x0000FF) + amt;
+                if (g > 255) g = 255; else if (g < 0) g = 0;
+                return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
+            }
+  
+            const checkContrast = (hex) => {
+                const r = parseInt(hex.substring(1, 3), 16);
+                const g = parseInt(hex.substring(3, 5), 16);
+                const b = parseInt(hex.substring(5, 7), 16);
+                const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
 
-  function valueToHex(e) {
-    let hex = e.toString(16);
-    return hex;
-  }
+                if (yiq >= 160) {
+                    document.body.classList.add('light-theme');
+                } else {
+                    document.body.classList.remove('light-theme');
+                }
+            }
 
-  function update(event) {
-    let box = document.querySelector(".container");
-    let text = document.querySelector("#header-text");
-    let hex = document.querySelector("#hex");
-    let rgb = document.querySelector("#rgb");
-    let instagram = document.querySelector("#instagram");
-    let github = document.querySelector("#github");
-    let fields = document.querySelector(".fields");
+            const updateUI = (color) => {
+                hexInput.value = color;
+                rgbInput.value = hexToRgb(color);
+                colorPreview.style.backgroundColor = color;
+                
+                const darkerColor = adjustBrightness(color, -40);
+                document.body.style.background = `linear-gradient(135deg, ${color} 0%, ${darkerColor} 100%)`;
+                checkContrast(color);
 
-    if (box && text) {
-      box.style.backgroundColor = event.target.value;
-      let rgbVal = colorValues(event.target.value);
-      rgb.value = `rgb(${rgbVal});`;
-      hex.value = event.target.value;
-      let colors = colorValues(event.target.value);
-      let r = colors[1];
-      let g = colors[2];
-      let b = colors[3];
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('color', color.substring(1));
+                window.history.replaceState({}, '', newUrl);
+            };
 
-      let o = Math.round(
-        (parseInt(r) * 299 + parseInt(g) * 587 + parseInt(b) * 114) / 1001
-      );
+            const showToast = (message) => {
+                toastText.innerText = message;
+                toast.className = "show";
+                setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+            }
 
-      if (o >= 120) {
-        text.style.color = "black";
-        instagram.style.color = "black";
-        github.style.color = "black";
-        instagram.style.borderColor = "black";
-        github.style.borderColor = "black";
-        fields.style.color = "black";
-      } else {
-        text.style.color = "white";
-        instagram.style.color = "white";
-        github.style.color = "white";
-        instagram.style.borderColor = "white";
-        github.style.borderColor = "white";
-        fields.style.color = "white";
-      }
-    }
-  }
-});
+            colorInput.addEventListener('input', (e) => {
+                updateUI(e.target.value);
+            });
+
+            colorPreview.addEventListener('click', () => {
+                colorInput.click();
+            });
+
+            copyBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    
+                    navigator.clipboard.writeText(input.value).then(() => {
+                        showToast(`${targetId.toUpperCase()} copied!`);
+                        const icon = btn.querySelector('i');
+                        const originalClass = icon.className;
+                        icon.className = "fa-solid fa-check";
+                        setTimeout(() => icon.className = originalClass, 2000);
+                    });
+                });
+            });
+
+            shareBtn.addEventListener('click', () => {
+                const shareUrl = window.location.href;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast("Link copied to clipboard!");
+                });
+            });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedColor = urlParams.get('color');
+            
+            if (sharedColor && /^[0-9A-F]{6}$/i.test(sharedColor)) {
+                const colorHex = '#' + sharedColor;
+                colorInput.value = colorHex;
+                updateUI(colorHex);
+            } else {
+                const initialColor = '#ff9a9e';
+                colorInput.value = initialColor;
+                updateUI(initialColor);
+            }
+        });
